@@ -1,0 +1,38 @@
+# Compiled binaries — never commit these, they're build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# The binary produced by `go build` (adjust name to match your project)
+/users-service
+/server
+/main
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of `go build -o` if you name it something else — worth adding explicitly
+/bin/
+/dist/
+
+# Coverage output
+*.out
+coverage.html
+
+# Go workspace file (only relevant if using multi-module workspaces)
+go.work
+go.work.sum
+
+# Environment variables — never commit secrets
+.env
+.env.local
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
