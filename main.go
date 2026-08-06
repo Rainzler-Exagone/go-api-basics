@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+    "strconv"
+
 
 )
 
@@ -53,6 +55,29 @@ func createUser(w http.ResponseWriter, r *http.Request){
 
 
 
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	for i, user := range users {
+		if user.Id == id {
+			users = append(users[:i],users[i+1:]...)
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{"message": "User deleted successfully"})
+			return
+		}
+	}
+
+	http.Error(w,"User not found",http.StatusNotFound)
+}
+
 
 func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -62,6 +87,7 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	
 	    case http.MethodPost:
 			createUser(w, r)
+		
 	
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -71,6 +97,7 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 func main(){
 	
 	http.HandleFunc("/", helloHandler)
+	http.HandleFunc("/users/{id}",deleteUser)
 	http.HandleFunc("/users", UsersHandler)
 	fmt.Println("Server running on http://localhost:8080")	
 	http.ListenAndServe(":8080", nil)
