@@ -79,6 +79,34 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id,err := strconv.Atoi(idStr)
+
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	var UpdateUser user
+
+	err = json.NewDecoder(r.Body).Decode(&UpdateUser);
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	for i := range users {
+		if users[i].Id == id {
+			users[i].Name = UpdateUser.Name
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(users[i])
+	}
+
+	}
+}
+
+
 func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
@@ -94,10 +122,21 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+		case http.MethodPut:
+			UpdateUser(w, r)
+		case http.MethodDelete:
+			deleteUser(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
 func main(){
 	
 	http.HandleFunc("/", helloHandler)
-	http.HandleFunc("/users/{id}",deleteUser)
+	http.HandleFunc("/users/{id}", UserHandler)
 	http.HandleFunc("/users", UsersHandler)
 	fmt.Println("Server running on http://localhost:8080")	
 	http.ListenAndServe(":8080", nil)
